@@ -9,26 +9,36 @@ import java.util.Calendar;
 
 public class Gui implements ActionListener {
 
+    // GUI components
     JFrame frame;
     JTextField textField;
     JLabel label;
     JButton button;
     JButton calculate;
     JTextArea textArea;
-    ArrayList<String> list = new ArrayList<String>();
 
+    // List of shift strings
+    ArrayList<String> list = new ArrayList<>();
+
+    // Fonts for GUI
     Font myFont = new Font("Arial", Font.BOLD, 15);
     Font lonnFont = new Font("Arial", Font.BOLD, 20);
 
-    double timelonn = 163.53, ekstra1 = 110, ekstra2 = 55;
+    // Variables for calculating pay
+    double timelonn = 163.53;
+    double extra1 = 110;
+    double extra2 = 55;
 
     Gui() {
 
+        // Create GUI
         frame = new JFrame("Lønnsutrekning");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 600);
         frame.setLayout(null);
 
+
+        // Create components
         label = new JLabel("Lønnsutrekning");
         label.setBounds(0, 0, 500, 50);
         label.setHorizontalAlignment(JLabel.CENTER);
@@ -74,17 +84,21 @@ public class Gui implements ActionListener {
         label.setFont(lonnFont);
         frame.add(label);
 
-
+        // Make GUI visible
         frame.setVisible(true);
 
     }
 
+    // Main method
     public static void main(String[] args) {
-        Gui gui = new Gui();
+        new Gui();
     }
 
+    // Action listener
     @Override
     public void actionPerformed(ActionEvent e) {
+
+        // Add shift to list
         if (e.getSource() == button) {
             list.add(textField.getText());
             textField.setText("");
@@ -93,6 +107,8 @@ public class Gui implements ActionListener {
                 textArea.append(s + " // " + getVaktLonn(s) + "\n");
             }
         }
+
+        // Calculate pay
         if (e.getSource() == calculate) {
             double total = 0;
             for (String s : list) {
@@ -102,6 +118,7 @@ public class Gui implements ActionListener {
         }
     }
 
+    // Calculate pay for shift
     public double getVaktLonn(String s) {
         double total = 0;
         String[] parts = s.split("-");
@@ -109,48 +126,51 @@ public class Gui implements ActionListener {
         int month = Integer.parseInt(parts[1]);
         int year = Integer.parseInt(parts[2]);
         int startHour = Integer.parseInt(parts[3]);
-        int startMinute = Integer.parseInt(parts[4]);
-        int endHour = Integer.parseInt(parts[5]);
-        int endMinute = Integer.parseInt(parts[6]);
+        int endHour = Integer.parseInt(parts[4]);
 
         LocalDate date = LocalDate.of(year, month, day);
         DayOfWeek dayOfWeekDow = date.getDayOfWeek();
         int dayOfWeek = dayOfWeekDow.getValue();
 
+        double diffTotalRounded = getDiffTotalRounded(year, month, day, startHour, endHour);
+        total += getTotalForWeekday(dayOfWeek, diffTotalRounded, startHour, endHour);
+        return Math.round(total * 100.0) / 100.0;
+    }
+
+    // Calculate time difference
+    private double getDiffTotalRounded(int year, int month, int day, int startHour, int endHour) {
         Calendar start = Calendar.getInstance();
-        start.set(year, month, day, startHour, startMinute);
+        start.set(year, month, day, startHour, 0);
         Calendar end = Calendar.getInstance();
-        end.set(year, month, day, endHour, endMinute);
+        end.set(year, month, day, endHour, 0);
         long diff = end.getTimeInMillis() - start.getTimeInMillis();
         long diffHours = diff / (60 * 60 * 1000) % 24;
-        long diffMinutes = diff / (60 * 1000) % 60;
-        long diffSeconds = diff / 1000 % 60;
-        double diffTotal = diffHours + (diffMinutes / 60) + (diffSeconds / 3600);
-        double diffTotalRounded = Math.round(diffTotal * 100.0) / 100.0;
+        return Math.round(diffHours * 100.0) / 100.0;
+    }
 
+    // Calculate pay for weekday
+    private double getTotalForWeekday(int dayOfWeek, double diffTotalRounded, int startHour, int endHour) {
+        double total = 0;
         if (dayOfWeek == 6) {
             for (int i = startHour; i < endHour; i++) {
                 if (i < 15) {
                     total += timelonn;
                 } else if (i < 18) {
-                    total += timelonn + ekstra2;
+                    total += timelonn + extra2;
                 } else {
-                    total += timelonn + ekstra1;
+                    total += timelonn + extra1;
                 }
             }
-            total -= (timelonn/2 + ekstra1/2);
-        }
-        else if (dayOfWeek == 7) {
+            total -= (timelonn / 2 + extra1 / 2);
+        } else if (dayOfWeek == 7) {
             for (int i = startHour; i < endHour; i++) {
-                total += timelonn + ekstra1;
+                total += timelonn + extra1;
             }
-            total -= (timelonn/2 + ekstra1/2);
-        }
-        else {
+            total -= (timelonn / 2 + extra1 / 2);
+        } else {
             total += timelonn * diffTotalRounded;
-            total -= timelonn/2;
+            total -= timelonn / 2;
         }
-        System.out.println(dayOfWeek);
-        return Math.round(total * 100.0) / 100.0;
+        return total;
     }
 }
