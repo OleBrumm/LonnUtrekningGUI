@@ -6,7 +6,7 @@ Currently only includes my personal rates, but will add dynamic rate functionali
                        ---HOW TO USE---
     In the leftmost input field, type in month of workshifts. This should be in the form of:
               MONTH - YEAR / MM-YYYY
-    In the rightmost input field, type in the shift information. This should be in the form of
+    In the rightmost input field, type in the shift information. This should be in the form of:
               DAY - STARTHOUR - ENDHOUR / DD-HH-HH
             
     Press the "Legg til" button to add the shift to the shiftlist
