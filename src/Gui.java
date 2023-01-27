@@ -11,17 +11,21 @@ public class Gui implements ActionListener {
 
     // GUI components
     JFrame frame;
-    JTextField textField;
-    JLabel label;
-    JButton button;
-    JButton calculate;
+    JLabel header;
+    JLabel monthYearHeader;
+    JLabel dayStartEndHeader;
+    JTextField monthYearText;
+    JTextField dayStartEndText;
+    JButton addShiftButton;
+    JButton calculateButton;
     JTextArea textArea;
+    JLabel lonnOutput;
 
     // List of shift strings
     ArrayList<String> list = new ArrayList<>();
 
     // Fonts for GUI
-    Font myFont = new Font("Arial", Font.BOLD, 15);
+    Font regularFont = new Font("Helvetica", Font.PLAIN, 14);
     Font lonnFont = new Font("Arial", Font.BOLD, 20);
 
     // Variables for calculating pay
@@ -39,50 +43,62 @@ public class Gui implements ActionListener {
 
 
         // Create components
-        label = new JLabel("Lønnsutrekning");
-        label.setBounds(0, 0, 500, 50);
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setFont(myFont);
-        frame.add(label);
+        header = new JLabel("Lønnsutrekning");
+        header.setBounds(0, 0, 500, 50);
+        header.setHorizontalAlignment(JLabel.CENTER);
+        header.setFont(regularFont);
+        frame.add(header);
 
-        label = new JLabel("Skriv inn vakter DD-MM-YYYY-HH-MM-HH-MM:");
-        label.setBounds(0, 50, 500, 50);
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setFont(myFont);
-        frame.add(label);
+        monthYearHeader = new JLabel("Skriv inn måned/år MM-YYYY:");
+        monthYearHeader.setBounds(0, 50, 250, 50);
+        monthYearHeader.setHorizontalAlignment(JLabel.CENTER);
+        monthYearHeader.setFont(regularFont);
+        frame.add(monthYearHeader);
 
-        textField = new JTextField();
-        textField.setBounds(25, 100, 450, 25);
-        textField.setFont(myFont);
-        textField.setHorizontalAlignment(JTextField.CENTER);
-        frame.add(textField);
+        dayStartEndHeader = new JLabel("Skriv inn vakt DD-HH-HH:");
+        dayStartEndHeader.setBounds(250, 50, 250, 50);
+        dayStartEndHeader.setHorizontalAlignment(JLabel.CENTER);
+        dayStartEndHeader.setFont(regularFont);
+        frame.add(dayStartEndHeader);
 
-        button = new JButton("Legg til");
-        button.setBounds(25, 150, 450, 25);
-        button.setFont(myFont);
-        button.setFocusable(false);
-        button.addActionListener(this);
-        frame.add(button);
+        monthYearText = new JTextField();
+        monthYearText.setBounds(25, 100, 200, 25);
+        monthYearText.setFont(regularFont);
+        monthYearText.setHorizontalAlignment(JTextField.CENTER);
+        frame.add(monthYearText);
+
+        dayStartEndText = new JTextField();
+        dayStartEndText.setBounds(275, 100, 200, 25);
+        dayStartEndText.setFont(regularFont);
+        dayStartEndText.setHorizontalAlignment(JTextField.CENTER);
+        frame.add(dayStartEndText);
+
+        addShiftButton = new JButton("Legg til");
+        addShiftButton.setBounds(25, 150, 450, 25);
+        addShiftButton.setFont(regularFont);
+        addShiftButton.setFocusable(false);
+        addShiftButton.addActionListener(this);
+        frame.add(addShiftButton);
 
         textArea = new JTextArea();
         textArea.setBounds(25, 200, 450, 150);
-        textArea.setFont(myFont);
+        textArea.setFont(regularFont);
         textArea.setEditable(false);
         textArea.setLineWrap(true);
         frame.add(textArea);
 
-        calculate = new JButton("Beregn");
-        calculate.setBounds(25, 375, 450, 25);
-        calculate.setFont(myFont);
-        calculate.setFocusable(false);
-        calculate.addActionListener(this);
-        frame.add(calculate);
+        calculateButton = new JButton("Beregn");
+        calculateButton.setBounds(25, 375, 450, 25);
+        calculateButton.setFont(regularFont);
+        calculateButton.setFocusable(false);
+        calculateButton.addActionListener(this);
+        frame.add(calculateButton);
 
-        label = new JLabel("Lønn:");
-        label.setBounds(25, 425, 450, 25);
-        label.setHorizontalAlignment(JLabel.CENTER);
-        label.setFont(lonnFont);
-        frame.add(label);
+        lonnOutput = new JLabel("Total lønn: ");
+        lonnOutput.setBounds(25, 425, 450, 25);
+        lonnOutput.setHorizontalAlignment(JLabel.CENTER);
+        lonnOutput.setFont(lonnFont);
+        frame.add(lonnOutput);
 
         // Make GUI visible
         frame.setVisible(true);
@@ -99,9 +115,9 @@ public class Gui implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         // Add shift to list
-        if (e.getSource() == button) {
-            list.add(textField.getText());
-            textField.setText("");
+        if (e.getSource() == addShiftButton) {
+            list.add(monthYearText.getText() + "-" + dayStartEndText.getText());
+            dayStartEndText.setText("");
             textArea.setText("");
             for (String s : list) {
                 textArea.append(s + " // " + getVaktLonn(s) + "\n");
@@ -109,12 +125,12 @@ public class Gui implements ActionListener {
         }
 
         // Calculate pay
-        if (e.getSource() == calculate) {
+        if (e.getSource() == calculateButton) {
             double total = 0;
             for (String s : list) {
                 total += getVaktLonn(s);
             }
-            label.setText("Lønn: " + total);
+            lonnOutput.setText("Total lønn: " + total);
         }
     }
 
@@ -122,9 +138,9 @@ public class Gui implements ActionListener {
     public double getVaktLonn(String s) {
         double total = 0;
         String[] parts = s.split("-");
-        int day = Integer.parseInt(parts[0]);
-        int month = Integer.parseInt(parts[1]);
-        int year = Integer.parseInt(parts[2]);
+        int month = Integer.parseInt(parts[0]);
+        int year = Integer.parseInt(parts[1]);
+        int day = Integer.parseInt(parts[2]);
         int startHour = Integer.parseInt(parts[3]);
         int endHour = Integer.parseInt(parts[4]);
 
@@ -152,7 +168,7 @@ public class Gui implements ActionListener {
     private double getTotalForWeekday(int dayOfWeek, double diffTotalRounded, int startHour, int endHour) {
         double total = 0;
         if (dayOfWeek == 6) {
-            for (int i = startHour; i < endHour; i++) {
+            for (int i = startHour; i <= endHour; i++) {
                 if (i < 15) {
                     total += timelonn;
                 } else if (i < 18) {
